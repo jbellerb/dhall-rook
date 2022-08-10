@@ -106,7 +106,7 @@ remove_external() {
 
 register_remaining() {
     DIR=$1
-    
+
     echo "{" > "$DIR/kubernetes.dhall"
 
     for FILE in "$DIR"/types/*.dhall
@@ -127,7 +127,7 @@ register_remaining() {
 
 format_all() {
     DIR=$1
-    
+
     find "$DIR" -name \*.dhall -exec dhall format {} \;
 }
 
