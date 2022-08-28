@@ -1,5 +1,24 @@
 λ(kubernetes : ./kubernetes.dhall) →
-  { AMQPEndpointSpec =
+  { Connection = ./schemas/io.objectbucket.v1alpha1.Connection.dhall kubernetes
+  , Endpoint = ./schemas/io.objectbucket.v1alpha1.Endpoint.dhall kubernetes
+  , ObjectBucket =
+      ./schemas/io.objectbucket.v1alpha1.ObjectBucket.dhall kubernetes
+  , ObjectBucketClaim =
+      ./schemas/io.objectbucket.v1alpha1.ObjectBucketClaim.dhall kubernetes
+  , ObjectBucketClaimList =
+      ./schemas/io.objectbucket.v1alpha1.ObjectBucketClaimList.dhall kubernetes
+  , ObjectBucketClaimSpec =
+      ./schemas/io.objectbucket.v1alpha1.ObjectBucketClaimSpec.dhall kubernetes
+  , ObjectBucketClaimStatus =
+      ./schemas/io.objectbucket.v1alpha1.ObjectBucketClaimStatus.dhall
+        kubernetes
+  , ObjectBucketList =
+      ./schemas/io.objectbucket.v1alpha1.ObjectBucketList.dhall kubernetes
+  , ObjectBucketSpec =
+      ./schemas/io.objectbucket.v1alpha1.ObjectBucketSpec.dhall kubernetes
+  , ObjectBucketStatus =
+      ./schemas/io.objectbucket.v1alpha1.ObjectBucketStatus.dhall kubernetes
+  , AMQPEndpointSpec =
       ./schemas/io.rook.ceph.v1.AMQPEndpointSpec.dhall kubernetes
   , BucketHealthCheckSpec =
       ./schemas/io.rook.ceph.v1.BucketHealthCheckSpec.dhall kubernetes

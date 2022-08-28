@@ -7,24 +7,28 @@ let
 
     src = pkgs.fetchzip {
       url = "https://github.com/rook/rook/archive/release-1.9.tar.gz";
-      sha256 = "123s5mx9rpszk6d5vxaqis33rx58sckzfgm7sr3j6lqvawzna2lg";
+      sha256 = "sha256-MjHH+M5wb14CjHb9nMe+AgNhfwv+Dl0UEda6dekZfbc=";
     };
 
-    vendorSha256 = "03d4g7b344bikawdadsg7m7f0i4jzxa4dr5fn06na6zfvr3vrxn3";
+    vendorSha256 = "sha256-VVqu12MnRz0yAmgiYt7eqAy/YBsmak/xT0yiECDHz3c=";
 
     preConfigure = ''
       export GO111MODULE=on
       export GOROOT=${pkgs.go}/share/go
     '';
 
-    postPatch = ''
+    postConfigure = ''
+      chmod 777 -R vendor/github.com/kube-object-storage
       ${pkgs.gnused}/bin/sed -i -e '1i // +k8s:openapi-gen=true' \
-          pkg/apis/ceph.rook.io/v1/doc.go
+          pkg/apis/ceph.rook.io/v1/doc.go \
+          vendor/github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1/doc.go
+      chmod 555 -R vendor/github.com/kube-object-storage
     '';
 
     buildPhase = ''
       ${pkgs.kube-openapi}/bin/openapi-gen \
           -i github.com/rook/rook/pkg/apis/ceph.rook.io/v1 \
+          -i github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1 \
           -i k8s.io/api/core/v1 \
           -i k8s.io/apimachinery/pkg/api/resource \
           -i k8s.io/apimachinery/pkg/apis/meta/v1 \
@@ -38,19 +42,19 @@ let
     '';
   };
 
-  specBuilder = pkgs.buildGoModule {
-    pname = "rook-ceph-openapi-builder";
-    version = "1.9";
+in pkgs.buildGoModule {
+  pname = "rook-ceph-openapi-json";
+  version = "1.9";
 
-    src = ./.;
+  src = ./.;
 
-    vendorSha256 = "14xnbbc4q47ljqc53a346fvs1z5z6nhn59vf7zwrm061f0yifpsw";
+  vendorSha256 = "sha256-00ws6XXwIbNhuTq6kJlz38FVBoHzvtENIVRAlIHDT0k=";
+  proxyVendor = true;
 
-    preConfigure = "cp ${specModule}/openapi_generated.go .";
-  };
+  preConfigure = "cp ${specModule}/openapi_generated.go .";
 
-in
-  pkgs.runCommand "rook-ceph-openapi-1.9" {} ''
+  installPhase = ''
     mkdir -p $out
-    ${specBuilder}/bin/main 1.9 $out/generated.v2.json
-  ''
+    $GOPATH/bin/main 1.9 $out/generated.v2.json
+  '';
+}

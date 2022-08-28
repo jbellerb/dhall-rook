@@ -1,5 +1,6 @@
 { ObjectMeta : Type
 , ListMeta : Type
+, ObjectReference : Type
 , ResourceRequirements : Type
 , EndpointAddress : Type
 , PersistentVolumeClaim : Type

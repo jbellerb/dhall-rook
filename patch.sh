@@ -19,7 +19,7 @@ make_function() {
 
     # Update expression to take a parameter
     printf '%s\n' 0a "λ(kubernetes: ./${ASCENT}kubernetes.dhall) →" . w q | \
-        ed "$FILE" 2> /dev/null
+        ed "$FILE" > /dev/null 2>&1
 }
 
 patch_definition() {
@@ -56,6 +56,7 @@ remove_external() {
     do
         case "$FILE" in
         "$DIR"/types/io.rook.ceph.v1.*) ;;
+        "$DIR"/types/io.objectbucket.v1alpha1.*) ;;
         *)
             FILE=${FILE#"$DIR/types/"}
             FILE=${FILE%.dhall}
@@ -136,7 +137,7 @@ BINDING_DIR=$1
 echo "Rewriting all definitions as functions..."
 patch_definitions "$BINDING_DIR"
 
-echo "Removing definitions outside of the io.rook.dhall.v1 namespace..."
+echo "Removing Kubernetes type definitions..."
 remove_external "$BINDING_DIR"
 
 echo "Building import type definition..."

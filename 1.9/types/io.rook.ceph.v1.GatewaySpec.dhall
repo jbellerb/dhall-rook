@@ -2,6 +2,7 @@
   { annotations : Optional (List { mapKey : Text, mapValue : Text })
   , caBundleRef : Optional Text
   , externalRgwEndpoints : Optional (List kubernetes.EndpointAddress)
+  , hostNetwork : Optional Bool
   , instances : Optional Natural
   , labels : Optional (List { mapKey : Text, mapValue : Text })
   , placement : Optional (./io.rook.ceph.v1.Placement.dhall kubernetes)

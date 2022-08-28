@@ -1,5 +1,26 @@
 λ(kubernetes : ./kubernetes.dhall) →
-  < AMQPEndpointSpec : ./types/io.rook.ceph.v1.AMQPEndpointSpec.dhall kubernetes
+  < AccessKeys : ./types/io.objectbucket.v1alpha1.AccessKeys.dhall kubernetes
+  | Authentication :
+      ./types/io.objectbucket.v1alpha1.Authentication.dhall kubernetes
+  | Connection : ./types/io.objectbucket.v1alpha1.Connection.dhall kubernetes
+  | Endpoint : ./types/io.objectbucket.v1alpha1.Endpoint.dhall kubernetes
+  | ObjectBucket :
+      ./types/io.objectbucket.v1alpha1.ObjectBucket.dhall kubernetes
+  | ObjectBucketClaim :
+      ./types/io.objectbucket.v1alpha1.ObjectBucketClaim.dhall kubernetes
+  | ObjectBucketClaimList :
+      ./types/io.objectbucket.v1alpha1.ObjectBucketClaimList.dhall kubernetes
+  | ObjectBucketClaimSpec :
+      ./types/io.objectbucket.v1alpha1.ObjectBucketClaimSpec.dhall kubernetes
+  | ObjectBucketClaimStatus :
+      ./types/io.objectbucket.v1alpha1.ObjectBucketClaimStatus.dhall kubernetes
+  | ObjectBucketList :
+      ./types/io.objectbucket.v1alpha1.ObjectBucketList.dhall kubernetes
+  | ObjectBucketSpec :
+      ./types/io.objectbucket.v1alpha1.ObjectBucketSpec.dhall kubernetes
+  | ObjectBucketStatus :
+      ./types/io.objectbucket.v1alpha1.ObjectBucketStatus.dhall kubernetes
+  | AMQPEndpointSpec : ./types/io.rook.ceph.v1.AMQPEndpointSpec.dhall kubernetes
   | BucketHealthCheckSpec :
       ./types/io.rook.ceph.v1.BucketHealthCheckSpec.dhall kubernetes
   | BucketNotificationSpec :

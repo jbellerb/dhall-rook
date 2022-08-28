@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs = { url = "nixpkgs/nixpkgs-unstable"; };
+    nixpkgs = { url = "github:nixos/nixpkgs/nixos-22.05"; };
   };
 
   outputs = { self, nixpkgs }:
@@ -35,26 +35,7 @@
         default = packages."${system}".rook-ceph-openapi;
       };
 
-      overlays.default = final: prev: {
-        haskellPackages = prev.haskellPackages.override {
-          overrides = final: prev: {
-            dhall-openapi =
-              let
-                dhall-haskell = pkgs.fetchFromGitHub {
-                  owner = "dhall-lang";
-                  repo = "dhall-haskell";
-                  rev = "1.41.1";
-                  sha256 = "11cb721zxvpjpqdssr3aywdgwha01rnvij2ahgbhmig36qnx1qbr";
-                  fetchSubmodules = true;
-                };
-
-              in
-                (import "${dhall-haskell}/nix/shared.nix" {
-                  inherit system;
-                }).dhall-openapi;
-          };
-        };
-      } // self.packages."${system}";
+      overlays.default = final: prev: self.packages."${system}";
 
       devShells."${system}".default = pkgs.mkShell {
         nativeBuildInputs = [

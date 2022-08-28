@@ -38,24 +38,25 @@ func main() {
 		},
 		GetDefinitions: GetCleanedOpenAPIDefinitions,
 		GetDefinitionName: func(name string) (string, spec.Extensions) {
-			path := name[0:strings.LastIndex(name, "/")]
-			value := name[strings.LastIndex(name, "/")+1:]
-			switch path {
+			namer := ParseName(name)
+			switch namer.path {
 			case "github.com/rook/rook/pkg/apis/ceph.rook.io":
-				return fmt.Sprintf("io.rook.ceph.%s", value), nil
+				return fmt.Sprintf("io.rook.ceph.%s.%s", namer.version, namer.name), nil
+			case "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io":
+				return fmt.Sprintf("io.objectbucket.%s.%s", namer.version, namer.name), nil
 			case "k8s.io/api/core":
-				return fmt.Sprintf("io.k8s.api.core.%s", value), nil
+				return fmt.Sprintf("io.k8s.api.core.%s.%s", namer.version, namer.name), nil
 			case "k8s.io/apimachinery/pkg/api":
-				return fmt.Sprintf("io.k8s.apimachinery.pkg.api.%s", value), nil
+				return fmt.Sprintf("io.k8s.apimachinery.pkg.api.%s.%s", namer.version, namer.name), nil
 			case "k8s.io/apimachinery/pkg/apis/meta":
-				return fmt.Sprintf("io.k8s.apimachinery.pkg.apis.meta.%s", value), nil
+				return fmt.Sprintf("io.k8s.apimachinery.pkg.apis.meta.%s.%s", namer.version, namer.name), nil
 			case "k8s.io/apimachinery/pkg/util":
-				return fmt.Sprintf("io.k8s.apimachinery.pkg.util.%s", value), nil
+				return fmt.Sprintf("io.k8s.apimachinery.pkg.util.%s.%s", namer.version, namer.name), nil
 			case "k8s.io/apimachinery/pkg":
-				return fmt.Sprintf("io.k8s.apimachinery.pkg.%s", value), nil
+				return fmt.Sprintf("io.k8s.apimachinery.pkg.%s.%s", namer.version, namer.name), nil
 			}
 
-			log.Fatalf("unrecognised prefix: %s", path)
+			log.Fatalf("unrecognised prefix: %s", namer.path)
 			return "this should never happen", nil
 		},
 	}
@@ -85,12 +86,13 @@ func GetCleanedOpenAPIDefinitions(ref common.ReferenceCallback) map[string]commo
 		_, hasApiVersion := properties["apiVersion"]
 		if hasKind && hasApiVersion {
 			schema := value.Schema
+			namer := ParseName(name)
 			schema.VendorExtensible.AddExtension(
 				"x-kubernetes-group-version-kind",
 				[1]map[string]string{
 					map[string]string{
-						"version": "v1",
-						"kind":    name[strings.LastIndex(name, ".")+1:],
+						"version": namer.version,
+						"kind":    namer.name,
 					},
 				},
 			)
@@ -105,11 +107,24 @@ func GetCleanedOpenAPIDefinitions(ref common.ReferenceCallback) map[string]commo
 var _ = util.OpenAPICanonicalTypeNamer(&typeNamer{})
 
 type typeNamer struct {
-	name string
+	name    string
+	path    string
+	version string
+}
+
+func ParseName(name string) typeNamer {
+	pathSplit := strings.LastIndex(name, "/")
+	versionSplit := strings.LastIndex(name, ".")
+
+	return typeNamer{
+		name:    name[versionSplit+1:],
+		path:    name[0:pathSplit],
+		version: name[pathSplit+1 : versionSplit],
+	}
 }
 
 func (t *typeNamer) OpenAPICanonicalTypeName() string {
-	return fmt.Sprintf("github.com/rook/rook/pkg/apis/ceph.rook.io/v1.%s", t.name)
+	return fmt.Sprintf("%s/%s.%s", t.path, t.version, t.name)
 }
 
 func CreateWebServices() []*restful.WebService {
@@ -118,17 +133,15 @@ func CreateWebServices() []*restful.WebService {
 	for name, _ := range GetCleanedOpenAPIDefinitions(func(name string) spec.Ref {
 		return spec.Ref{}
 	}) {
-		// len("github.com/rook/rook/pkg/apis/ceph.rook.io/v1.") == 46
-		if len(name) < 46 || name[0:45] != "github.com/rook/rook/pkg/apis/ceph.rook.io/v1" {
+		namer := ParseName(name)
+
+		if namer.path != "github.com/rook/rook/pkg/apis/ceph.rook.io" &&
+			namer.path != "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io" {
 			continue
 		}
 
-		namer := typeNamer{
-			name: name[46:],
-		}
-
-		ws.Route(ws.GET(fmt.Sprintf("v1/%s", strings.ToLower(namer.name))).
-			Operation(fmt.Sprintf("get-v1.%s", namer.name)).
+		ws.Route(ws.GET(fmt.Sprintf("%s/%s", strings.ToLower(namer.version), strings.ToLower(namer.name))).
+			Operation(fmt.Sprintf("get-%s.%s", namer.version, namer.name)).
 			Produces(restful.MIME_JSON).
 			To(func(*restful.Request, *restful.Response) {}).
 			Writes(&namer))
