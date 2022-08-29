@@ -1,8 +1,5 @@
 λ(kubernetes : ./kubernetes.dhall) →
-  { AccessKeys = ./types/io.objectbucket.v1alpha1.AccessKeys.dhall kubernetes
-  , Authentication =
-      ./types/io.objectbucket.v1alpha1.Authentication.dhall kubernetes
-  , Connection = ./types/io.objectbucket.v1alpha1.Connection.dhall kubernetes
+  { Connection = ./types/io.objectbucket.v1alpha1.Connection.dhall kubernetes
   , Endpoint = ./types/io.objectbucket.v1alpha1.Endpoint.dhall kubernetes
   , ObjectBucket =
       ./types/io.objectbucket.v1alpha1.ObjectBucket.dhall kubernetes

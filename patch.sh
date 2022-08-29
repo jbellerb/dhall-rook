@@ -49,6 +49,54 @@ patch_definitions() {
     done
 }
 
+remove_definition() {
+    DIR=$1
+    FILE=$2
+
+    FILE=${FILE#"$DIR"/types/}
+    QUALIFIED=${FILE%.dhall}
+    TYPE=${QUALIFIED##*.}
+
+    if [ -e "$DIR/schemas/$FILE" ]
+    then
+        echo "  Pruning $QUALIFIED"
+
+        rm "$DIR/defaults/$FILE"
+        rm "$DIR/schemas/$FILE"
+
+        # Update references
+        find "$DIR/types" -name \*.dhall \
+            -exec sed -i \
+                "s/.\/$FILE kubernetes/kubernetes.$TYPE/g" {} \;
+        find "$DIR/defaults" -name \*.dhall \
+            -exec sed -i \
+                "s/.\/..\/types\/$FILE kubernetes/kubernetes.$TYPE/g" \
+                {} \;
+    else
+        echo "  Inlining $QUALIFIED"
+
+        # Inline references
+        CONTENTS=$(cat "$DIR/types/$FILE")
+        find "$DIR/types" -name \*.dhall \
+            -exec sed -i \
+                "s/.\/$FILE kubernetes/$CONTENTS/g" {} \;
+        find "$DIR/defaults" -name \*.dhall \
+            -exec sed -i \
+                "s/.\/..\/types\/$FILE kubernetes/$CONTENTS/g" \
+                 {} \;
+    fi
+
+    rm "$DIR/types/$FILE"
+
+    # Comment out so it gets removed when formatting
+    for EXPORT in "$DIR/defaults.dhall" "$DIR/schemas.dhall" \
+        "$DIR/types.dhall" "$DIR/typesUnion.dhall"
+    do
+        sed -i "s/[,|]\{0,1\} $TYPE [:=]/{-- &/" "$EXPORT"
+        sed -i "s/$FILE.*$/& --}/" "$EXPORT"
+    done
+}
+
 remove_external() {
     DIR=$1
 
@@ -57,53 +105,23 @@ remove_external() {
         case "$FILE" in
         "$DIR"/types/io.rook.ceph.v1.*) ;;
         "$DIR"/types/io.objectbucket.v1alpha1.*) ;;
-        *)
-            FILE=${FILE#"$DIR/types/"}
-            FILE=${FILE%.dhall}
-            NAME=${FILE##*.}
-
-            if [ -e "$DIR/schemas/$FILE.dhall" ]
-            then
-                echo "  Pruning $FILE"
-
-                rm "$DIR/defaults/$FILE.dhall"
-                rm "$DIR/schemas/$FILE.dhall"
-
-                # Update references
-                find "$DIR/types" -name \*.dhall \
-                    -exec sed -i \
-                        "s/.\/$FILE.dhall kubernetes/kubernetes.$NAME/g" {} \;
-                find "$DIR/defaults" -name \*.dhall \
-                    -exec sed -i \
-                        "s/.\/..\/types\/$FILE.dhall kubernetes/kubernetes.$NAME/g" \
-                        {} \;
-            else
-                echo "  Inlining $FILE"
-
-                # Inline references
-                CONTENTS=$(cat "$DIR/types/$FILE.dhall")
-                find "$DIR/types" -name \*.dhall \
-                    -exec sed -i \
-                        "s/.\/$FILE.dhall kubernetes/$CONTENTS/g" {} \;
-                find "$DIR/defaults" -name \*.dhall \
-                    -exec sed -i \
-                        "s/.\/..\/types\/$FILE.dhall kubernetes/$CONTENTS/g" \
-                         {} \;
-            fi
-
-            rm "$DIR/types/$FILE.dhall"
-
-            # Comment out so it gets removed when formatting
-            for EXPORT in "$DIR/defaults.dhall" "$DIR/schemas.dhall" \
-                "$DIR/types.dhall" "$DIR/typesUnion.dhall"
-            do
-                sed -i "s/[,|]\{0,1\} $NAME [:=]/{-- &/" "$EXPORT"
-                sed -i "s/$FILE.dhall.*$/& --}/" "$EXPORT"
-            done
-            ;;
+        *) remove_definition "$DIR" "$FILE" ;;
         esac
     done
 }
+
+remove_invalid() {
+    DIR=$1
+
+    for FILE in "$DIR"/types/*.dhall
+    do
+        if [ ! -e "$DIR/schemas/${FILE#"$DIR"/types/}" ]
+        then
+            remove_definition "$DIR" "$FILE"
+        fi
+    done
+}
+
 
 register_remaining() {
     DIR=$1
@@ -139,6 +157,9 @@ patch_definitions "$BINDING_DIR"
 
 echo "Removing Kubernetes type definitions..."
 remove_external "$BINDING_DIR"
+
+echo "Inlining invalid type definitions..."
+remove_invalid "$BINDING_DIR"
 
 echo "Building import type definition..."
 register_remaining "$BINDING_DIR"
