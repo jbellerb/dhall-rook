@@ -1,2 +1,2 @@
 λ(kubernetes : ./../kubernetes.dhall) →
-  { apiVersion = "v1", kind = "CephBlockPoolList" }
+  { apiVersion = "ceph.rook.io/v1", kind = "CephBlockPoolList" }

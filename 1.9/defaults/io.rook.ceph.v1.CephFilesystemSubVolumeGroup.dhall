@@ -1,5 +1,5 @@
 λ(kubernetes : ./../kubernetes.dhall) →
-  { apiVersion = "v1"
+  { apiVersion = "ceph.rook.io/v1"
   , kind = "CephFilesystemSubVolumeGroup"
   , status =
       None

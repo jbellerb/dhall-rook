@@ -30,9 +30,36 @@
           }
         ) {};
 
-        rook-ceph-openapi = pkgs.callPackage ./openapi/default.nix {};
+        rook-ceph-openapi = pkgs.callPackage ./generate/openapi/default.nix {};
 
-        default = packages."${system}".rook-ceph-openapi;
+        dhall-rook = pkgs.callPackage ({ pkgs, stdenv }:
+          stdenv.mkDerivation {
+            name = "dhall-rook";
+            version = "1.9";
+
+            src = ./generate;
+
+            buildInputs = [ pkgs.ed pkgs.haskellPackages.dhall ];
+
+            buildPhase = ''
+              mkdir 1.9
+              cd 1.9
+              ${pkgs.haskellPackages.dhall-openapi}/bin/openapi-to-dhall \
+                  --preferNaturalInt ${pkgs.rook-ceph-openapi}/generated.v2.json
+
+              # openapi-to-dhall currently doesn't support exceptions with
+              # underscores in their names
+              sed -i "s/Natural/Integer/g" types/io.rook.ceph.v1.StatesSpec.dhall
+              cd ..
+
+              sh patch.sh 1.9 1.9
+            '';
+
+            installPhase = "mv 1.9 $out";
+          }
+        ) {};
+
+        default = packages."${system}".dhall-rook;
       };
 
       overlays.default = final: prev: self.packages."${system}";

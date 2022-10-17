@@ -108,6 +108,9 @@ remove_external() {
         *) remove_definition "$DIR" "$FILE" ;;
         esac
     done
+
+    sed -i "s/IntOrString = ((.\/types.dhall kubernetes)).IntOrString//" \
+        "$DIR/package.dhall"
 }
 
 remove_invalid() {

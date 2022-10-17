@@ -1,2 +1,2 @@
 λ(kubernetes : ./../kubernetes.dhall) →
-  { apiVersion = "v1alpha1", kind = "ObjectBucketList" }
+  { apiVersion = "objectbucket.io/v1alpha1", kind = "ObjectBucketList" }

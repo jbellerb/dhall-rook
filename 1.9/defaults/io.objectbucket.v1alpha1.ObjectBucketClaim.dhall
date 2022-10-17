@@ -1,5 +1,5 @@
 λ(kubernetes : ./../kubernetes.dhall) →
-  { apiVersion = "v1alpha1"
+  { apiVersion = "objectbucket.io/v1alpha1"
   , kind = "ObjectBucketClaim"
   , spec =
       None

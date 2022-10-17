@@ -91,6 +91,7 @@ func GetCleanedOpenAPIDefinitions(ref common.ReferenceCallback) map[string]commo
 				"x-kubernetes-group-version-kind",
 				[1]map[string]string{
 					map[string]string{
+						"group":   namer.group,
 						"version": namer.version,
 						"kind":    namer.name,
 					},
@@ -109,16 +110,24 @@ var _ = util.OpenAPICanonicalTypeNamer(&typeNamer{})
 type typeNamer struct {
 	name    string
 	path    string
+	group   string
 	version string
 }
 
 func ParseName(name string) typeNamer {
 	pathSplit := strings.LastIndex(name, "/")
+	groupSplit := strings.LastIndex(name[0:pathSplit], "/")
 	versionSplit := strings.LastIndex(name, ".")
+
+	// group should be blank for k8s core
+	if name[0:pathSplit] == "k8s.io/api/core" {
+		groupSplit = pathSplit - 1
+	}
 
 	return typeNamer{
 		name:    name[versionSplit+1:],
 		path:    name[0:pathSplit],
+		group:   name[groupSplit+1 : pathSplit],
 		version: name[pathSplit+1 : versionSplit],
 	}
 }
@@ -135,8 +144,7 @@ func CreateWebServices() []*restful.WebService {
 	}) {
 		namer := ParseName(name)
 
-		if namer.path != "github.com/rook/rook/pkg/apis/ceph.rook.io" &&
-			namer.path != "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io" {
+		if namer.group != "ceph.rook.io" && namer.group != "objectbucket.io" {
 			continue
 		}
 
