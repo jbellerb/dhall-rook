@@ -1,0 +1,7 @@
+["1.9"]
+sha256 = "sha256-BTvCdW1aHcVgxb11s5g2njrLWIIi7jg4qs2XWhV66Xs="
+vendorHash = "sha256-VVqu12MnRz0yAmgiYt7eqAy/YBsmak/xT0yiECDHz3c="
+
+["1.10"]
+sha256 = "sha256-fQDoxGcgiU+5o/Bf/+eKE5adkV9Pck7incjhxHvC6XQ="
+vendorHash = "sha256-9Fu8dyYFPDUgtT4ciLyvfgd2t6D+UuNCgUnCQvaLJzs="

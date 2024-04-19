@@ -16,14 +16,8 @@
         inherit (pkgs) lib newScope;
       };
 
-    in rec {
+    in {
       packages."${system}" = {
-        dhall-rook = generateLib.buildSpecDhall {
-          version = "1.9";
-          sha256 = "sha256-BTvCdW1aHcVgxb11s5g2njrLWIIi7jg4qs2XWhV66Xs=";
-          vendorHash = "sha256-VVqu12MnRz0yAmgiYt7eqAy/YBsmak/xT0yiECDHz3c=";
-        };
-
         kube-openapi = pkgs.callPackage ({ fetchFromGitHub, buildGoModule }:
           buildGoModule {
             pname = "kube-openapi";
@@ -43,8 +37,15 @@
           }
         ) {};
 
-        default = packages."${system}".dhall-rook;
-      };
+        dhall-rook = pkgs.dhall-rook_1_10;
+        default = pkgs.dhall-rook;
+      } // (nixpkgs.lib.mapAttrs' (version: props: nixpkgs.lib.nameValuePair
+        "dhall-rook_${builtins.replaceStrings [ "." ] [ "_" ] version}"
+        (generateLib.buildSpecDhall {
+          inherit version;
+          inherit (props) sha256 vendorHash;
+        })
+      ) (nixpkgs.lib.importTOML ./generate/rook.toml));
 
       overlays.default = final: prev: self.packages."${system}";
 
