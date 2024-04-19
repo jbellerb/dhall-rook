@@ -12,8 +12,18 @@
         overlays = [ self.overlays.default ];
       };
 
+      generateLib = import ./generate/default.nix {
+        inherit (pkgs) lib newScope;
+      };
+
     in rec {
       packages."${system}" = {
+        dhall-rook = generateLib.buildSpecDhall {
+          version = "1.9";
+          sha256 = "sha256-BTvCdW1aHcVgxb11s5g2njrLWIIi7jg4qs2XWhV66Xs=";
+          vendorHash = "sha256-VVqu12MnRz0yAmgiYt7eqAy/YBsmak/xT0yiECDHz3c=";
+        };
+
         kube-openapi = pkgs.callPackage ({ fetchFromGitHub, buildGoModule }:
           buildGoModule {
             pname = "kube-openapi";
@@ -30,35 +40,6 @@
 
             doCheck = false;
             excludedPackages = [ "./test/integration" ];
-          }
-        ) {};
-
-        rook-ceph-openapi = pkgs.callPackage ./generate/openapi/default.nix {};
-
-        dhall-rook = pkgs.callPackage ({ pkgs, stdenvNoCC }:
-          stdenvNoCC.mkDerivation {
-            name = "dhall-rook";
-            version = "1.9";
-
-            src = ./generate;
-
-            buildInputs = [ pkgs.ed pkgs.haskellPackages.dhall ];
-
-            buildPhase = ''
-              mkdir 1.9
-              cd 1.9
-              ${pkgs.haskellPackages.dhall-openapi}/bin/openapi-to-dhall \
-                  --preferNaturalInt ${pkgs.rook-ceph-openapi}/generated.v2.json
-
-              # openapi-to-dhall currently doesn't support exceptions with
-              # underscores in their names
-              sed -i "s/Natural/Integer/g" types/io.rook.ceph.v1.StatesSpec.dhall
-              cd ..
-
-              sh patch.sh 1.9 1.9
-            '';
-
-            installPhase = "mv 1.9 $out";
           }
         ) {};
 
