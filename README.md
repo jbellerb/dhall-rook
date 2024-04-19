@@ -64,7 +64,7 @@ in  store
 #### License
 
 <sup>
-Copyright (C) Jared Beller, 2022.
+Copyright (C) jae beller, 2022.
 </sup>
 <br />
 <sup>
