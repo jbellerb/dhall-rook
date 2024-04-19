@@ -7,10 +7,10 @@ let
 
     src = pkgs.fetchzip {
       url = "https://github.com/rook/rook/archive/release-1.9.tar.gz";
-      sha256 = "sha256-MjHH+M5wb14CjHb9nMe+AgNhfwv+Dl0UEda6dekZfbc=";
+      sha256 = "sha256-BTvCdW1aHcVgxb11s5g2njrLWIIi7jg4qs2XWhV66Xs=";
     };
 
-    vendorSha256 = "sha256-VVqu12MnRz0yAmgiYt7eqAy/YBsmak/xT0yiECDHz3c=";
+    vendorHash = "sha256-VVqu12MnRz0yAmgiYt7eqAy/YBsmak/xT0yiECDHz3c=";
 
     preConfigure = ''
       export GO111MODULE=on
@@ -27,18 +27,18 @@ let
 
     buildPhase = ''
       ${pkgs.kube-openapi}/bin/openapi-gen \
-          -i github.com/rook/rook/pkg/apis/ceph.rook.io/v1 \
-          -i github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1 \
-          -i k8s.io/api/core/v1 \
-          -i k8s.io/apimachinery/pkg/api/resource \
-          -i k8s.io/apimachinery/pkg/apis/meta/v1 \
-          -i k8s.io/apimachinery/pkg/util/intstr \
-          -o generate -p main -h /dev/null
+          --output-dir generate --output-pkg main --go-header-file /dev/null \
+          github.com/rook/rook/pkg/apis/ceph.rook.io/v1 \
+          github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1 \
+          k8s.io/api/core/v1 \
+          k8s.io/apimachinery/pkg/api/resource \
+          k8s.io/apimachinery/pkg/apis/meta/v1 \
+          k8s.io/apimachinery/pkg/util/intstr
     '';
 
     installPhase = ''
       mkdir -p $out
-      mv generate/main/openapi_generated.go $out/
+      mv generate/generated.openapi.go $out/
     '';
   };
 
@@ -48,10 +48,10 @@ in pkgs.buildGoModule {
 
   src = ./.;
 
-  vendorSha256 = "sha256-00ws6XXwIbNhuTq6kJlz38FVBoHzvtENIVRAlIHDT0k=";
+  vendorHash = "sha256-lyUHb3b2kCiE7CjW993Tanin6bTUAbari4+Q8DL68nA=";
   proxyVendor = true;
 
-  preConfigure = "cp ${specModule}/openapi_generated.go .";
+  preConfigure = "cp ${specModule}/generated.openapi.go .";
 
   installPhase = ''
     mkdir -p $out

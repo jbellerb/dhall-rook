@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs = { url = "github:nixos/nixpkgs/nixos-22.05"; };
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
   outputs = { self, nixpkgs }:
@@ -14,26 +14,29 @@
 
     in rec {
       packages."${system}" = {
-        kube-openapi = pkgs.callPackage ({ fetchzip, buildGoModule }:
+        kube-openapi = pkgs.callPackage ({ fetchFromGitHub, buildGoModule }:
           buildGoModule {
             pname = "kube-openapi";
-            version = "1.22";
+            version = "v0.0.0-20240411171206-dc4e619f62f3";
 
-            src = fetchzip {
-              url = "https://github.com/kubernetes/kube-openapi/archive/release-1.22.tar.gz";
-              sha256 = "06bq0js4bqf5cpc8p1l681g86hblq689namnm46nyydzjvwkzd53";
+            src = fetchFromGitHub {
+              owner = "kubernetes";
+              repo = "kube-openapi";
+              rev = "dc4e619f62f39c61c7b7fc49a9e561ceee8a8935";
+              hash = "sha256-KoM8GgYnJUELHR7pGcG/UlxcJ2tefZGLqiZuyvQ6qIw=";
             };
 
-            vendorSha256 = "0383dkfxsd2zrdicv28xz3c61s20qnjqf95s2qj4zf8ffgwswdqq";
+            vendorHash = "sha256-sckhOpoCN7FrFOMk3PpOjlDv1zHhj09SHg3GGrH8tac=";
 
             doCheck = false;
+            excludedPackages = [ "./test/integration" ];
           }
         ) {};
 
         rook-ceph-openapi = pkgs.callPackage ./generate/openapi/default.nix {};
 
-        dhall-rook = pkgs.callPackage ({ pkgs, stdenv }:
-          stdenv.mkDerivation {
+        dhall-rook = pkgs.callPackage ({ pkgs, stdenvNoCC }:
+          stdenvNoCC.mkDerivation {
             name = "dhall-rook";
             version = "1.9";
 
