@@ -1,1 +1,1 @@
-./1.11/schemas.dhall
+./1.12/schemas.dhall
