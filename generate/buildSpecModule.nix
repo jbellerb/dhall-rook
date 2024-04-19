@@ -1,14 +1,25 @@
-{ fetchzip, buildGoModule, gnused, go, kube-openapi }:
+{ lib, fetchzip, buildGoModule, gnused, go, kube-openapi }:
 
 { version, sha256, vendorHash }:
-  buildGoModule {
-    pname = "rook-ceph-openapi-module";
-    inherit version;
+  let
+    split = builtins.splitVersion version;
+    major = lib.toInt (builtins.elemAt split 0);
+    minor = lib.toInt (builtins.elemAt split 1);
+
+    # for versions >= 1.13, pkg/apis is a separate go module and we need to
+    # build our fake go module based on that instead of the main rook module
+    separateApis = minor >= 13 || major > 1;
 
     src = fetchzip {
       url = "https://github.com/rook/rook/archive/release-${version}.tar.gz";
       inherit sha256;
     };
+
+  in buildGoModule {
+    pname = "rook-ceph-openapi-module";
+    inherit version;
+
+    src = if separateApis then "${src}/pkg/apis" else src;
 
     inherit vendorHash;
 
@@ -20,7 +31,7 @@
     postConfigure = ''
       chmod 777 -R vendor/github.com/kube-object-storage
       ${gnused}/bin/sed -i -e '1i // +k8s:openapi-gen=true' \
-          pkg/apis/ceph.rook.io/v1/doc.go \
+          ${if !separateApis then "pkg/apis/" else ""}ceph.rook.io/v1/doc.go \
           vendor/github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1/doc.go
       chmod 555 -R vendor/github.com/kube-object-storage
     '';
