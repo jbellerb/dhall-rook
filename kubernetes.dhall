@@ -1,1 +1,1 @@
-./1.10/kubernetes.dhall
+./1.11/kubernetes.dhall

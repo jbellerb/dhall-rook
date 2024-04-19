@@ -1,1 +1,1 @@
-./1.10/types.dhall
+./1.11/types.dhall

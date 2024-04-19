@@ -5,3 +5,7 @@ vendorHash = "sha256-VVqu12MnRz0yAmgiYt7eqAy/YBsmak/xT0yiECDHz3c="
 ["1.10"]
 sha256 = "sha256-fQDoxGcgiU+5o/Bf/+eKE5adkV9Pck7incjhxHvC6XQ="
 vendorHash = "sha256-9Fu8dyYFPDUgtT4ciLyvfgd2t6D+UuNCgUnCQvaLJzs="
+
+["1.11"]
+sha256 = "sha256-zKIge2oEgytaX5TFjZRgPyGLq0iWfTe+xcVHRHNqMjU="
+vendorHash = "sha256-AIBoXP1zpDaFzMxO8qBoydNDpvAYC4Vy/qT8UU72xW8="
