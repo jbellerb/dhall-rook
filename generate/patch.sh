@@ -111,6 +111,8 @@ remove_external() {
 
     sed -i "s/IntOrString = ((.\/types.dhall kubernetes)).IntOrString//" \
         "$DIR/package.dhall"
+    sed -i "s/, NatOrString = ((.\/types.dhall kubernetes)).NatOrString//" \
+        "$DIR/package.dhall"
 }
 
 remove_invalid() {
