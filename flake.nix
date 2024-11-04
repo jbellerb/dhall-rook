@@ -38,7 +38,7 @@
           }
         ) {};
 
-        dhall-rook = pkgs.dhall-rook_1_13;
+        dhall-rook = pkgs.dhall-rook_1_14;
         default = pkgs.dhall-rook;
       } // (nixpkgs.lib.mapAttrs' (version: props: nixpkgs.lib.nameValuePair
         "dhall-rook_${builtins.replaceStrings [ "." ] [ "_" ] version}"
