@@ -21,17 +21,16 @@
         kube-openapi = pkgs.callPackage ({ fetchFromGitHub, buildGoModule }:
           buildGoModule {
             pname = "kube-openapi";
-            version = "v0.0.0-20240411171206-dc4e619f62f3-fix";
+            version = "v0.0.0-20241009091222-67ed5848f094";
 
-            # TODO: contribute or at least report the backslash bug
             src = fetchFromGitHub {
-              owner = "jbellerb";
+              owner = "kubernetes";
               repo = "kube-openapi";
-              rev = "9af4936824c39319e8b0e1bb047f7f6e520592c4";
-              hash = "sha256-KZkdfPah33l+e7NOeMYq0UwSv9saoHNDqcnTPu4wAys=";
+              rev = "67ed5848f094e4cd74f5bdc458cd98f12767c538";
+              hash = "sha256-xK6MoR3sHJIOO/dRrKin28HJXx22QWVT8ReKypuCkAk=";
             };
 
-            vendorHash = "sha256-sckhOpoCN7FrFOMk3PpOjlDv1zHhj09SHg3GGrH8tac=";
+            vendorHash = "sha256-LnXlPMNiuBw5qp9r/17n+Y8ir6s4M2mFFefhG1mAb4U=";
 
             doCheck = false;
             excludedPackages = [ "./test/integration" ];
