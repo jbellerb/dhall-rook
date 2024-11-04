@@ -6,7 +6,7 @@ buildGoModule {
 
   src = ./.;
 
-  vendorHash = "sha256-lyUHb3b2kCiE7CjW993Tanin6bTUAbari4+Q8DL68nA=";
+  vendorHash = "sha256-qTrXnno/XBS2W2j3q6/bnKZyGV1vtx0sl5kO41JpQDQ=";
   proxyVendor = true;
 
   preConfigure = ''

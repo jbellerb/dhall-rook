@@ -21,3 +21,7 @@ vendorHash = "sha256-Ddmp1OnCCEFSuIzse3JQwpdJ/K3E60z3XqQekn4M7s0="
 ["1.14"]
 sha256 = "sha256-XHXdXw/BOac3QZl9hN9+TTkBdo88c0QD9z/w2csU9N8="
 vendorHash = "sha256-FkyvH6S+sjrW07fnRGmCpYV32PwDXe/QeDV2Gg/ZZ/c="
+
+["1.15"]
+sha256 = "sha256-nX0fs5CO3DsBZd/5Tyshpld2fXEDViMzqfA7bIoxwLg="
+vendorHash = "sha256-v6Pn5AEd/aPw6aPxW92Jr7tAgfZbpfYrCgsSd+UI2o4="
